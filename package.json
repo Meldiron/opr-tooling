@@ -1,0 +1,16 @@
+{
+  "name": "opr-tooling",
+  "version": "0.0.1",
+  "description": "Internal tool generator for Open Runtimes functions and Appwrite Functions.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "prettier": "^2.6.0",
+    "prettier-plugin-tailwindcss": "^0.1.8"
+  }
+}
