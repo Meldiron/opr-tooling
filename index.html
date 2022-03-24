@@ -46,64 +46,209 @@
 
     <!-- Alpine JS -->
     <script src="https://unpkg.com/alpinejs" defer></script>
+
+    <!-- YAML parser -->
+    <script type="text/javascript" src="yaml.min.js"></script>
+
+    <!-- Global JS -->
+    <script type="text/javascript">
+      var inputTypes = [
+        "checkbox",
+        "color",
+        "date",
+        "email",
+        "file",
+        "number",
+        "password",
+        "tel",
+        "text",
+        "time",
+        "url",
+        "week",
+      ];
+
+      var arrayType = "array";
+      var objectType = "object";
+
+      var allTypes = [];
+      allTypes = allTypes.concat(inputTypes);
+      allTypes = allTypes.concat(arrayType);
+      allTypes = allTypes.concat(objectType);
+
+      var simpleInput = `
+      <input
+        class="bg-brand-100 ring-brand-800 block rounded-xl text-sm text-gray-900 focus:outline-none focus:ring-1"
+          x-bind:class="
+          attribute.type === 'color' ? 'p-1 w-full' :
+          attribute.type === 'checkbox' ? '' :
+          'p-4 w-full'
+        "
+        x-bind:id="attribute.key"
+        x-bind:type="attribute.type"
+        x-bind:placeholder="attribute.placeholder"
+        x-bind:value="attribute.value"
+        placeholder="name@flowbite.com"
+        required
+        />
+      `;
+
+      var alpineSetup = function() {
+        return {
+          config: null,
+          arr: ["jedna", "dva", "tri"],
+          renderLevel: function(arrI,i) {
+            return `<p x-html="arrI"></p>`;
+          }
+        }
+      }
+
+    </script>
   </head>
-  <body class="py-10">
+  <body
+    class="bg-black py-10"
+    x-init="config = YAML.parse(await (await fetch('/opr-tooling.yml')).text())"
+    x-data="alpineSetup()"
+  >
     <div
       class="to-brand-900 absolute inset-0 bg-gradient-to-t from-black"
     ></div>
-    <div class="relative">
-      <form class="mx-auto w-full max-w-2xl rounded-xl bg-white p-6 shadow-lg">
-        <h1 class="text-brand-900 mb-4 text-2xl font-bold">
-          Invoice Generator
-        </h1>
 
-        <p class="text-brand-500 max-w-md">
-          A simple yet powerful invoice generator using Appwrite Functions.
-        </p>
+    <template x-if="config !== null">
+      <div class="relative">
+        <form
+          class="mx-auto w-full max-w-2xl rounded-xl bg-white p-6 shadow-lg"
+        >
+          <h1 class="text-brand-900 mb-4 text-2xl font-bold">
+            Invoice Generator
+          </h1>
 
-        <section class="flex flex-col space-y-10 py-10">
-          <div class="bg-brand-200 h-[2px] w-full rounded-full"></div>
+          <template x-for="(arrI,i) in arr">
+            <div x-html="renderLevel(arrI,i)"></p>
+          </template>
+     
 
-          <div class="flex flex-col space-y-4">
-            <div>
-              <label
-                for="email"
-                class="text-brand-900 mb-2 block text-sm font-medium"
-                >Invoice Number</label
-              >
-              <input
-                type="email"
-                id="email"
-                class="bg-brand-100 ring-brand-800 block w-full rounded-xl p-4 text-sm text-gray-900 focus:outline-none focus:ring-1"
-                placeholder="name@flowbite.com"
-                required
-              />
+          <p class="text-brand-500 max-w-md">
+            A simple yet powerful invoice generator using Appwrite Functions.
+          </p>
+
+          <section class="flex flex-col space-y-6 py-10">
+            <div class="bg-brand-200 h-[2px] w-full rounded-full"></div>
+
+            <div class="flex flex-col space-y-4">
+              <template hidden x-for="attribute in config.payload">
+                <div>
+                  <label
+                    x-text="attribute.name"
+                    for="email"
+                    class="text-brand-900 mb-2 block text-sm font-medium"
+                  ></label>
+
+                  <template x-if="!allTypes.includes(attribute.type)">
+                    <p class="text-sm font-light text-red-500">
+                      Unsupported type
+                    </p>
+                  </template>
+
+                  <template x-if="inputTypes.includes(attribute.type)">
+                    <div class="w-full" x-html="simpleInput"></div>
+                  </template>
+
+                  <template x-if="attribute.type === objectType">
+                    <div
+                      class="border-brand-100 my-2 rounded-xl border bg-white p-3 shadow-md"
+                    >
+                      aa
+                    </div>
+                  </template>
+
+                  <template x-if="attribute.type === arrayType">
+                    <div
+                      class="flex flex-col space-y-2"
+                      x-init="attribute.value = attribute.value || []"
+                    >
+                      <div class="flex flex-col space-y-3">
+                        <template hidden x-for="oneValue of attribute.value">
+                          <p x-text="oneValue">What now?!?</p></template
+                        >
+                      </div>
+
+                      <button
+                        x-on:click="attribute.value.push()"
+                        type="button"
+                        class="ring-brand-200 bg-brand-900 flex w-full items-center justify-center space-x-2 rounded-lg px-2 py-2 text-sm text-white hover:bg-black focus:ring-4"
+                      >
+                        <span>Add</span>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          class="h-4 w-4"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fill-rule="evenodd"
+                            d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                            clip-rule="evenodd"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  </template>
+                </div>
+              </template>
             </div>
+
+            <div class="bg-brand-200 h-[2px] w-full rounded-full"></div>
+          </section>
+
+          <div class="flex items-center justify-between">
+            <button
+              type="button"
+              class="ring-brand-100 hover:bg-brand-200 bg-brand-100 text-brand-900 rounded-lg px-12 py-3 font-bold focus:ring-4"
+            >
+              Clear
+            </button>
+
+            <button
+              type="submit"
+              class="ring-brand-200 bg-brand-900 rounded-lg px-12 py-3 font-bold text-white hover:bg-black focus:ring-4"
+            >
+              Submit
+            </button>
           </div>
+        </form>
 
-          <div class="bg-brand-200 h-[2px] w-full rounded-full"></div>
-        </section>
+        <p class="text-brand-600 mt-4 text-center text-sm">
+          Powered by
+          <a href="https://github.com/Meldiron/opr-tooling" class="text-white"
+            >Open Runtimes Tooling
+          </a>
+        </p>
+      </div>
+    </template>
 
-        <div class="flex items-center justify-between">
-          <button
-            type="button"
-            class="ring-brand-100 hover:bg-brand-200 bg-brand-100 text-brand-900 rounded-lg px-12 py-3 font-bold focus:ring-4"
-          >
-            Clear
-          </button>
-
-          <button
-            type="submit"
-            class="ring-brand-200 bg-brand-900 rounded-lg px-12 py-3 font-bold text-white hover:bg-black focus:ring-4"
-          >
-            Submit
-          </button>
-        </div>
-      </form>
-
-      <p class="text-brand-600 mt-4 text-center text-sm">
-        Powered by <a href="#" class="text-white">Open Runtimes Tooling </span>
-      </p>
-    </div>
+    <template x-if="config === null">
+      <div class="relative flex justify-center">
+        <svg
+          class="h-8 w-8 animate-spin text-white"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+          ></circle>
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          ></path>
+        </svg>
+      </div>
+    </template>
   </body>
 </html>
